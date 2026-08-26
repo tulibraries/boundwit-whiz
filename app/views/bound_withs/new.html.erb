@@ -1,0 +1,50 @@
+<%# app/views/bound_withs/new.html.erb %>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h1 class="h4 mb-0">Create a boundwith</h1>
+        </div>
+
+        <div class="card-body p-4">
+          <% if flash[:notice] %>
+            <div class="alert alert-success">
+              <%= flash[:notice] %>
+            </div>
+          <% end %>
+
+          <% if flash[:alert] %>
+            <div class="alert alert-danger">
+              <%= flash[:alert] %>
+            </div>
+          <% end %>
+
+          <%= form_with scope: :bound_with,
+                        url: bound_withs_path do |form| %>
+
+            <div class="mb-3">
+              <%= form.label :mms_ids,
+                             "Bibs to boundwith",
+                             class: "form-label fw-semibold" %>
+
+              <%= form.text_area :mms_ids,
+                    rows: 8,
+                    required: true,
+                    class: "form-control",
+                    placeholder: "MMS IDs, one per line. First bib needs holding and item attached." %>
+
+              <div class="form-text">
+                Put the parent bib first, followed by the child bibs.
+              </div>
+            </div>
+
+            <%= form.submit "Submit",
+                            class: "btn btn-primary px-4" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

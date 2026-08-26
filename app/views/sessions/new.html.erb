@@ -1,0 +1,25 @@
+<div class="login-page">
+  <div class="container">
+    <div class="row justify-content-center align-items-center login-content">
+      <div class="col-auto">
+        <%= image_tag "boundwit-whiz-mascot.png",
+                      alt: "Boundwit Whiz mascot",
+                      class: "login-mascot" %>
+      </div>
+
+      <div class="col-auto login-copy">
+        <h1 class="login-title">Let’s Get Started!</h1>
+
+        <p class="text-secondary mb-4">
+          Sign in to Boundwit Whiz at the link below.
+        </p>
+
+        <%= button_to "Log in via SSO",
+                      "/users/auth/saml",
+                      method: :post,
+                      data: { turbo: false },
+                      class: "btn btn-primary login-button" %>
+      </div>
+    </div>
+  </div>
+</div>

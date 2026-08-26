@@ -1,0 +1,19 @@
+default: &default
+  sign_out_redirect_url: <%= ENV["IDP_REDIRECT_URL"] || "/" %>
+  saml_certificate: |- <%= ENV["SP_CERT"] %>
+  saml_private_key: |- <%= ENV["SP_KEY"] %>
+  saml_issuer: <%= ENV["SAML_ISSUER"] || "https://boundwit-whiz.k8s.temple.edu/users/auth/saml/metadata" %>
+  assertion_consumer_service_url: <%= ENV["SAML_ASSERTION_CONSUMER_SERVICE_URL"] || "https://boundwit-whiz.k8s.temple.edu/users/auth/saml/callback" %>
+  saml_idp_metadata_url: <%= ENV["SAML_IDP_METADATA_URL"] || "https://np-fim.temple.edu/idp/shibboleth" %>
+  idp_sso_service_url: <%= ENV["SAML_IDP_SSO_SERVICE_URL"] ||"https://np-fim.temple.edu/idp/profile/SAML2/POST/SSO" %>
+
+development:
+  <<: *default
+  saml_issuer: "catalog-search-local-212c43b2ba0f5c0e3d4d60ec67a7397947dc7808"
+  assertion_consumer_service_url: "http://localhost:3000/users/auth/saml/callback"
+
+test:
+  <<: *default
+
+production:
+  <<: *default

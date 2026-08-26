@@ -1,0 +1,28 @@
+<div class="record-modal-content">
+  <h2 class="record-modal-title">
+    <%= @marc_record.title || "Holding record" %>
+  </h2>
+
+  <div class="marc-record">
+    <% @marc_record.record.fields.each do |field| %>
+      <div class="marc-row">
+        <span class="marc-tag"><%= field.tag %></span>
+
+        <% if field.is_a?(MARC::ControlField) %>
+          <span class="marc-value"><%= field.value %></span>
+        <% else %>
+          <span class="marc-indicators">
+            <%= field.indicator1 %><%= field.indicator2 %>
+          </span>
+
+          <span class="marc-value">
+            <% field.subfields.each do |subfield| %>
+              <strong>$<%= subfield.code %></strong>
+              <%= subfield.value %>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="help-page py-5">
+  <div class="container">
+    <div class="card help-card mx-auto">
+      <div class="card-body p-5">
+        <h2 class="text-center mb-4">
+          How “Boundwit Whiz” Works
+        </h2>
+
+        <p>
+          Boundwit Whiz adds fields to records to indicate that multiple
+          bibliographic entities have been bound together and should circulate
+          as one item.
+        </p>
+
+        <p class="mb-2">These additions are:</p>
+
+        <ul>
+          <li>
+            The parent (first bib) will have 774 fields added containing titles
+            and MMS IDs from the other records.
+          </li>
+
+          <li>
+            The children (all bibs except the first) will have a 773 field added
+            containing the title and MMS ID of the first bib.
+          </li>
+
+          <li>
+            All bibs will have a 501 “Bound with:” note added, with a list of
+            titles for all other bib records in the list delimited by “ -- ”
+            and ending with a period, and appended with PPT.
+          </li>
+
+          <li>
+            The holding record will have 014s added with MMS IDs for all other
+            records.
+          </li>
+        </ul>
+
+        <h3 class="h6 fw-bold mt-4">Procedures</h3>
+
+        <p>
+          Input the list of MMS IDs for the titles to be bound together.
+          The first one should already have its holding and item record.
+          (The other bib records do not need inventory.)
+        </p>
+
+        <p>
+          After the Boundwit Whiz runs, it outputs a list of the titles modified.
+        </p>
+
+        <p class="mb-0">
+          Each title on the list includes a link to display the bib record so you
+          can view the changes.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
