@@ -1,0 +1,129 @@
+include:
+  - project: "infrastructure-engineering-shared/gitlab-ci-templates"
+    file:
+      - "lint_docker.yaml"
+      - "build_and_scan_docker.yaml"
+      - "kubectl_commands.yaml"
+      - "sast_scanning.yaml"
+
+variables:
+  IMAGE: "tulibraries/boundwit-whiz"
+  HARBOR: "harbor.k8s.temple.edu"
+  HELM_EXPERIMENTAL_OCI: "1"
+  SAST_EXCLUDED_PATHS: "spec, test, tests, tmp, "
+
+.export_variables: &export_variables
+  - source .env
+  - export VERSION="${DOCKER_IMAGE_VERSION}-${CI_COMMIT_SHORT_SHA}"
+
+before_script:
+  - *export_variables
+
+stages:
+  - lint
+  - build
+  - scan
+  - tag
+  - deploy
+
+lint:
+  extends: .lint_docker
+  variables:
+    DF: ".docker/app/Dockerfile"
+  except:
+    - tags
+
+build:
+  stage: build
+  extends: .build_and_scan_image
+  variables:
+    DF: ".docker/app/Dockerfile"
+  except:
+    - tags
+    
+tag:
+  stage: tag
+  extends: .tag_image
+  except:
+    - tags
+
+qa_deploy:
+  variables:
+    IMAGE: $HARBOR/tulibraries/boundwit-whiz
+    RANCHER: np-rancher
+    CLUSTER: $DEV_CLUSTER
+  stage: deploy
+  extends: .helm_setup
+  only:
+    - main
+  script:
+    - *export_variables
+    - helm pull oci://$HARBOR/tulibraries/charts/boundwit-whiz --untar
+    - |
+      helm upgrade boundwit-whiz oci://$HARBOR/tulibraries/charts/boundwit-whiz \
+        --history-max=5 --namespace=boundwit-whiz-qa \
+        --values boundwit-whiz/values.yaml \
+        --set image.repository=$IMAGE:$VERSION \
+        --set skylight.deployId=$CI_COMMIT_SHA \
+        --set skylight.gitSha=$CI_COMMIT_SHA \
+        --set skylight.description="QA deploy $CI_COMMIT_SHORT_SHA"
+
+tag_prod:
+  stage: tag
+  extends: .tag_image
+  variables:
+    TAG: prod
+  only:
+    - tags
+
+tag_release:
+  stage: tag
+  extends: .tag_image
+  variables:
+    TAG: $CI_COMMIT_TAG
+  only:
+    - tags
+
+tag_prod_chart:
+  stage: tag
+  extends: .tag_image
+  # Helm charts live in Harbor as OCI artifacts; add/update a "prod" tag so we
+  # can easily find the chart version that is currently deployed in production.
+  variables:
+    HARBOR_PROJECT: "tulibraries"
+    HARBOR_CHART_REPOSITORY: "charts%2Fboundwit-whiz"
+  only:
+    - tags
+  script:
+    - |
+      API_BASE="https://${HARBOR}/api/v2.0/projects/${HARBOR_PROJECT}/repositories/${HARBOR_CHART_REPOSITORY}"
+      curl --silent --show-error -u "${HARBOR_USERNAME}:${HARBOR_TOKEN}" \
+        -X DELETE "${API_BASE}/artifacts/prod/tags/prod" || echo "prod tag not present yet"
+    - |
+      curl --silent --show-error --fail \
+        -u "${HARBOR_USERNAME}:${HARBOR_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{\"name\":\"prod\"}" \
+        -X POST "${API_BASE}/artifacts/${HELM_VERSION_PROD}/tags"
+
+prod_deploy:
+  variables:
+    IMAGE: harbor.k8s.temple.edu/tulibraries/boundwit-whiz
+    RANCHER: prod-rancher
+    CLUSTER: $PROD_CLUSTER
+  stage: deploy
+  extends: .helm_setup
+  only:
+    - tags
+  script:
+    - export VERSION=$CI_COMMIT_TAG
+    - helm pull oci://$HARBOR/tulibraries/charts/boundwit-whiz --version $HELM_VERSION_PROD --untar
+    - |
+      helm upgrade boundwit-whiz oci://$HARBOR/tulibraries/charts/boundwit-whiz \
+        --version $HELM_VERSION_PROD \
+        --history-max=5 --namespace=boundwit-whiz-prod \
+        --values boundwit-whiz/values-prod.yaml \
+        --set image.repository=$IMAGE:$CI_COMMIT_TAG \
+        --set skylight.deployId=$CI_COMMIT_TAG \
+        --set skylight.gitSha=$CI_COMMIT_SHA \
+        --set skylight.description="Release $CI_COMMIT_TAG"

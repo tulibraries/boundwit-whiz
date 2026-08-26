@@ -1,0 +1,75 @@
+<div class="success-page">
+  <div class="container">
+    <div class="success-card card mx-auto">
+      <div class="card-body text-center p-5">
+        <div class="success-icon mb-4">
+          ✓
+        </div>
+
+        <h1 class="h4 fw-bold mb-4">
+          Boundwith success!
+        </h1>
+
+        <div data-controller="record-modal">
+          <div class="list-group text-start mx-auto success-records">
+
+            <% @records.each do |entry| %>
+
+              <% bib = entry[:bib] %>
+              <div class="list-group-item">
+                <%= bib.title %>
+
+                <%= link_to "(view record)",
+                  marc_record_path(bib),
+                  data: {
+                    action: "click->record-modal#open"
+                  },
+                  class: "ms-1" %>
+
+
+                <% entry[:holdings].each do |holding| %>
+                  <div class="ms-4 mt-1 text-secondary">
+                    Holding <%= holding.record_id %>
+
+                  <%= link_to "(view record)",
+                    marc_record_path(holding),
+                    data: {
+                      action: "click->record-modal#open"
+                    },
+                    class: "ms-1" %>
+                  </div>
+                <% end %>
+
+              </div>
+
+            <% end %>
+          </div>
+
+          <div
+              class="record-modal-backdrop d-none"
+              data-record-modal-target="backdrop"
+              data-action="click->record-modal#closeOnBackdrop"
+              >
+              <div class="record-modal">
+                <button
+                    type="button"
+                    class="record-modal-close"
+                    data-action="record-modal#close"
+                    aria-label="Close"
+                    >
+                    ×
+                </button>
+
+                  <div data-record-modal-target="content">
+                  </div>
+              </div>
+          </div>
+        </div>
+
+        <%= link_to "Create another boundwith",
+          root_path,
+          class: "btn btn-primary fw-semibold mt-4 px-4" %>
+      </div>
+    </div>
+  </div>
+</div>

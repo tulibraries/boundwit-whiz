@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Boundwit Whiz</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= favicon_link_tag "boundwit-whiz-mascot.png" %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-dark bg-dark px-4">
+      <%= link_to "Boundwit Whiz", root_path, class: "navbar-brand fw-semibold" %>
+
+      <% if authenticated? %>
+        <div class="d-flex align-items-center gap-4">
+          <%= link_to "Create BoundWith",
+                      root_path,
+                      class: "text-white text-decoration-none" %>
+
+          <%= link_to "Help",
+                      help_path,
+                      class: "text-white text-decoration-none" %>
+
+          <%= button_to "Sign Out",
+                        session_path,
+                        method: :delete,
+                        class: "btn btn-link text-white text-decoration-none p-0" %>
+        </div>
+      <% end %>
+    </nav>
+
+    <%= yield %>
+  </body>
+</html>
