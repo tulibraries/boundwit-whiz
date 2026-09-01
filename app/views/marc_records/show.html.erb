@@ -12,7 +12,7 @@
           <span class="marc-value"><%= field.value %></span>
         <% else %>
           <span class="marc-indicators">
-            <%= field.indicator1 %><%= field.indicator2 %>
+            <%= field.indicator1.sub(" ", "_") %><%= field.indicator2.sub(" ", "_") %>
           </span>
 
           <span class="marc-value">
