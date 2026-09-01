@@ -54,7 +54,7 @@ module BoundWith
       return rec if duplicate
 
       field = MARC::DataField.new(
-        "501", "1", " ",
+        "501", " ", " ",
         [ "a", content ],
         [ "5", "PPT" ]
       )
