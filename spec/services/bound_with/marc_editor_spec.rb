@@ -35,6 +35,8 @@ RSpec.describe BoundWith::MarcEditor do
 
       expect(field["t"]).to eq("Child title")
       expect(field["w"]).to eq("child-id")
+      expect(field.indicator1).to eq("1")
+      expect(field.indicator2).to eq(" ")
     end
   end
 
@@ -74,6 +76,8 @@ RSpec.describe BoundWith::MarcEditor do
         .to eq("Bound with: Child title -- Second child.")
 
       expect(field["5"]).to eq("PPT")
+      expect(field.indicator1).to eq(" ")
+      expect(field.indicator2).to eq(" ")
     end
 
     it "does not add a duplicate 501 field" do
