@@ -21,7 +21,7 @@ module BoundWith
       bibs.each(&:cache!)
 
       if !holding_selection_required?
-        
+
         holding_id = parent_bib.holding_ids.first
 
         @holding = Alma::BibHolding.find(
@@ -38,6 +38,5 @@ module BoundWith
     def holding_selection_required?
       holdings.count > 1
     end
-
   end
 end

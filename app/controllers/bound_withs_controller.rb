@@ -35,7 +35,7 @@ class BoundWithsController < ApplicationController
 
     parent_bib = bibs.first
     holding = Alma::BibHolding.find(mms_id: parent_bib.id, holding_id: holding_id)
-    
+
     BoundWith::Updater.new(
       bibs: bibs,
       holding: holding

@@ -49,5 +49,4 @@ module Alma
         )
     end
   end
-
 end

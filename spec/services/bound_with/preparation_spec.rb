@@ -16,7 +16,7 @@ RSpec.describe BoundWith::Preparation do
     instance_double(
       Alma::Bib,
       id: "991039535820903811",
-      holding_ids: ["1"]
+      holding_ids: [ "1" ]
     )
   end
 
@@ -38,7 +38,7 @@ RSpec.describe BoundWith::Preparation do
       before do
         allow(parent_bib)
           .to receive(:holdings)
-          .and_return([{ "holding_id" => "1" }])
+          .and_return([ { "holding_id" => "1" } ])
 
         allow(parent_bib).to receive(:cache!)
         allow(child_bib).to receive(:cache!)
@@ -47,7 +47,7 @@ RSpec.describe BoundWith::Preparation do
         allow(Alma::Bib)
           .to receive(:get_bibs)
           .with(mms_ids)
-          .and_return([parent_bib, child_bib])
+          .and_return([ parent_bib, child_bib ])
 
         allow(Alma::BibHolding)
           .to receive(:find)
@@ -66,14 +66,14 @@ RSpec.describe BoundWith::Preparation do
         preparation.call
 
         expect(preparation.bibs)
-          .to eq([parent_bib, child_bib])
+          .to eq([ parent_bib, child_bib ])
       end
 
       it "stores the holdings" do
         preparation.call
 
         expect(preparation.holdings)
-          .to eq([{ "holding_id" => "1" }])
+          .to eq([ { "holding_id" => "1" } ])
       end
 
       it "does not require holding selection" do
@@ -128,7 +128,7 @@ RSpec.describe BoundWith::Preparation do
         allow(Alma::Bib)
           .to receive(:get_bibs)
           .with(mms_ids)
-          .and_return([parent_bib, child_bib])
+          .and_return([ parent_bib, child_bib ])
       end
 
       it "requires holding selection" do
@@ -162,7 +162,7 @@ RSpec.describe BoundWith::Preparation do
         allow(Alma::Bib)
           .to receive(:get_bibs)
           .with(mms_ids)
-          .and_return([parent_bib, child_bib])
+          .and_return([ parent_bib, child_bib ])
       end
 
       it "raises BoundWith::NoHoldingsError" do
@@ -181,7 +181,7 @@ RSpec.describe BoundWith::Preparation do
 
         allow(parent_bib)
           .to receive(:holdings)
-          .and_return([{ "holding_id" => "1" }])
+          .and_return([ { "holding_id" => "1" } ])
 
         allow(parent_bib).to receive(:cache!)
         allow(child_bib).to receive(:cache!)
@@ -207,9 +207,8 @@ RSpec.describe BoundWith::Preparation do
         preparation.call
 
         expect(preparation.bibs)
-          .to eq([parent_bib, child_bib])
+          .to eq([ parent_bib, child_bib ])
       end
     end
   end
 end
-

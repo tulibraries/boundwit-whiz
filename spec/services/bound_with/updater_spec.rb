@@ -252,4 +252,3 @@ RSpec.describe BoundWith::Updater do
     end
   end
 end
-

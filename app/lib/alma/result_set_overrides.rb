@@ -1,6 +1,5 @@
 module Alma
   module ResultSetOverrides
-
     def each
       results = super
 

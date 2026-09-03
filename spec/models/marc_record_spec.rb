@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe MarcRecord, type: :model do
-
   describe "#record" do
     it "parses xml back into MARC" do
       record = described_class.create!(

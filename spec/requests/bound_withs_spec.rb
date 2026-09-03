@@ -476,4 +476,3 @@ RSpec.describe "BoundWiths", type: :request do
     end
   end
 end
-
