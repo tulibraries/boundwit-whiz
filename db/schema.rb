@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_25_142619) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_02_204859) do
   create_table "marc_records", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "marc_xml"
     t.string "mms_id"
     t.string "record_id"
     t.string "record_type"
+    t.boolean "suppress_from_publishing"
     t.string "title"
     t.datetime "updated_at", null: false
     t.index ["mms_id"], name: "index_marc_records_on_mms_id"

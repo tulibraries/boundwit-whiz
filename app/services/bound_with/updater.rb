@@ -1,28 +1,17 @@
 module BoundWith
   class Updater
-    def initialize(mms_ids:)
-      @mms_ids = mms_ids
+    def initialize(bibs:, holding:)
+      @bibs = bibs
+      @parent_holding = holding
       @marc = MarcEditor.new
     end
 
     def call
-      # mapping uniq because for some reason duplicates appear
-      # TODO: figure out where duplicates come from.
-      bibs = Alma::Bib.get_bibs(mms_ids).to_a.uniq(&:id)
-
       recs = bibs.map do |bib|
         marc.purge_old_fields(rec: bib.record)
       end
 
       parent, *children = recs
-
-      parent_bib = bibs.first
-      holding_id = parent_bib.holding_ids.first
-
-      parent_holding = Alma::BibHolding.find(
-        mms_id: parent_bib.id,
-        holding_id:
-      )
 
       holding_record = marc.purge_old_fields(
         rec: parent_holding.record
@@ -37,43 +26,19 @@ module BoundWith
         marc.add_014_field(parent: holding_record, child:)
       end
 
+
       bibs.each(&:update!)
       parent_holding.update!
 
       # cache the successfully uppdated records locally
-      cache_bibs!(bibs)
-      cache_holding!(parent_holding, parent_bib)
+      bibs.each(&:cache!)
+      parent_holding.cache!
 
       bibs
     end
 
     private
 
-    attr_reader :mms_ids, :marc
-
-
-    def cache_bibs!(bibs)
-      bibs.each do |bib|
-        MarcRecord.find_or_initialize_by(
-          record_type: "bib",
-          record_id: bib.id
-        ).update!(
-          mms_id: bib.id,
-          title: bib.title,
-          marc_xml: bib.record.to_xml_string
-        )
-      end
-    end
-
-    def cache_holding!(holding, bib)
-      MarcRecord.find_or_initialize_by(
-        record_type: "holding",
-        record_id: holding.id
-      ).update!(
-        mms_id: bib.id,
-        title: holding.title,
-        marc_xml: holding.record.to_xml_string
-      )
-    end
+    attr_reader :bibs, :parent_holding, :marc
   end
 end

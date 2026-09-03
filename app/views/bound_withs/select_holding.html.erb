@@ -1,0 +1,63 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      <div class="card shadow-sm">
+
+        <div class="card-header bg-white py-3 d-flex align-items-center gap-3">
+          <span class="badge text-bg-warning fs-6">!</span>
+          <h1 class="h4 mb-0">Select a holding</h1>
+        </div>
+
+        <div class="card-body p-4">
+          <p>
+            This parent record has multiple holdings.
+            Please select which holding to use for the boundwith.
+          </p>
+
+          <%= form_with scope: :bound_with,
+                        url: create_with_selected_holding_path do |form| %>
+
+            <% @mms_ids.each do |mms_id| %>
+              <%= hidden_field_tag "bound_with[mms_ids][]", mms_id %>
+            <% end %>
+
+            <div class="list-group mb-4">
+              <% @holdings.each do |holding| %>
+                <label class="list-group-item py-3">
+                  <div class="d-flex gap-2">
+                    <%= form.radio_button :holding_id,
+                          holding["holding_id"],
+                          required: true,
+                          class: "form-check-input mt-1" %>
+
+                    <div>
+                      <div class="fw-semibold mb-1">
+                        <%= holding.dig("library", "value") %>
+                        /
+                        <%= holding.dig("location", "value") %>
+                      </div>
+
+                      <div>
+                        <span class="fw-semibold">Call Number:</span>
+                        <%= holding["call_number"].presence || "None" %>
+                      </div>
+
+                      <div>
+                        <span class="fw-semibold">Holdings ID:</span>
+                        <%= holding["holding_id"] %>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              <% end %>
+            </div>
+
+            <%= form.submit "Submit",
+                  class: "btn btn-primary px-4" %>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
