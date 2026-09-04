@@ -27,6 +27,7 @@ class BoundWithsController < ApplicationController
 
   def create_with_selected_holding
     mms_ids = params.dig(:bound_with, :mms_ids)
+    validate(mms_ids:)
     holding_id = params.dig(:bound_with, :holding_id)
 
     bibs = MarcRecord.where(record_id: mms_ids)
@@ -89,16 +90,20 @@ class BoundWithsController < ApplicationController
       .reject(&:blank?)
       .uniq
 
+    validate(mms_ids: ids)
+  end
 
-    raise ArgumentError, "Enter at least two MMS IDs." if ids.size < 2
 
-    invalid_ids = ids.reject { |id| id.match?(/\A9910\d{10}3811\z/) }
+  def validate(mms_ids:)
+    raise ArgumentError, "Enter at least two MMS IDs." if mms_ids.size < 2
+
+    invalid_ids = mms_ids.reject { |id| id.match?(/\A9910\d{10}3811\z/) }
 
     if invalid_ids.any?
       raise ArgumentError,
         "Invalid MMS ID: #{invalid_ids.join(', ')}"
     end
 
-    ids
+    mms_ids
   end
 end
