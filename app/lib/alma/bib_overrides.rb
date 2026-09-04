@@ -3,7 +3,7 @@ module Alma
     include MarcRecordExtras
 
     def holdings
-      @holdings_response = Alma::Net.get(
+      @holdings_response ||= Alma::Net.get(
         "#{bibs_base_path}/#{id}/holdings",
         headers:,
         timeout: Alma::Bib.timeout
