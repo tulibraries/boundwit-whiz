@@ -67,6 +67,19 @@ RSpec.describe Alma::BibHolding do
     end
   end
 
+  describe "#cache!" do
+    it "caches the bib as a MarcRecord." do
+      holding = described_class.new(holding_response)
+      expect(holding.cache!)
+
+      record = MarcRecord.find_by(record_id: holding.id)
+      expect(record.record_id).to eq(holding.id)
+      expect(record.title).to eq(holding.title)
+      expect(record.marc_xml).to eq(holding.record.to_xml_string)
+    end
+  end
+
+
   describe "#title" do
     it "allows a dummy title field." do
       holding = described_class.new(holding_response)
