@@ -2,7 +2,7 @@ module BoundWith
   class NoHoldingsError < StandardError; end
 
   class Preparation
-    attr_reader :mms_ids, :holdings, :bibs
+    attr_reader :mms_ids, :holdings, :bibs, :holding
 
     def initialize(mms_ids:)
       @mms_ids = mms_ids

@@ -76,6 +76,11 @@ RSpec.describe BoundWith::Preparation do
           .to eq([ { "holding_id" => "1" } ])
       end
 
+      it "stores the holding" do
+        preparation.call
+        expect(preparation.holding)
+      end
+
       it "does not require holding selection" do
         preparation.call
 
