@@ -16,7 +16,7 @@ Given a list of MMS IDs, Boundwit Whiz:
 - Updates the records in Alma.
 - Caches the updated MARC records locally so they can be displayed without making another Alma API request.
 
-Alma remains the source of truth. Cached MARC records can be refreshed from Alma.
+Alma remains the source of truth.
 
 ## Requirements
 
@@ -213,12 +213,6 @@ mms_id    = parent bib MMS ID
 
 Only one cached copy of a given Alma record is retained. Alma is authoritative.
 
-A cached record can be refreshed using:
-
-```ruby
-marc_record.refresh_from_alma!
-```
-
 ## Bound-with workflow
 
 The order of the supplied MMS IDs is significant.
@@ -272,8 +266,6 @@ The success page provides a `view record` link for each bib and associated holdi
 Records are displayed in a Stimulus-powered modal using standard MARC tags, indicators, and subfields.
 
 The cached MARCXML is parsed back into a `MARC::Record` when displayed.
-
-Cached records may be refreshed from Alma when a current authoritative copy is needed.
 
 ## Safety when developing
 
