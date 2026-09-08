@@ -8,29 +8,32 @@ The application accepts a list of Alma MMS IDs, treats the first bibliographic r
 
 Given a list of MMS IDs, Boundwit Whiz:
 
-- Treats the first bib as the parent record.
-- Adds `774` fields to the parent for each child bib.
-- Adds a `773` field to each child pointing back to the parent.
-- Adds a `501` "Bound with:" note to each bib describing the other titles in the set.
-- Adds `014` fields to the selected holding record for the related MMS IDs.
-- Updates the records in Alma.
-- Caches the updated MARC records locally so they can be displayed without making another Alma API request.
+* Treats the first bib as the parent record.
+* Retrieves the holdings associated with the parent bib.
+* Automatically uses the parent holding when there is only one.
+* Prompts the cataloger to select a holding when the parent has multiple holdings.
+* Adds `774` fields to the parent for each child bib.
+* Adds a `773` field to each child pointing back to the parent.
+* Adds a `501` "Bound with:" note to each bib describing the other titles in the set.
+* Adds `014` fields to the selected parent holding for the related MMS IDs.
+* Updates the records in Alma.
+* Caches the updated MARC records locally so they can be displayed without making another Alma API request.
 
 Alma remains the source of truth.
 
 ## Requirements
 
-- Ruby
-- Rails
-- SQLite for local development
-- Access to the Alma API
-- Temple SSO configuration when authentication is enabled
+* Ruby
+* Rails
+* SQLite for local development
+* Access to the Alma API
+* Temple SSO configuration when authentication is enabled
 
 Install dependencies:
 
 ```bash
 bundle install
-````
+```
 
 Prepare the database:
 
@@ -128,20 +131,44 @@ OmniAuth test mode is used for SAML request specs.
 
 ## Application structure
 
-### BoundWith::Updater
+### BoundWith::Preparation
 
-`BoundWith::Updater` coordinates a bound-with operation.
+`BoundWith::Preparation` prepares a bound-with operation before any MARC records are updated.
 
 It is responsible for:
 
-1. Retrieving bib records from Alma.
-2. Determining which holding on the parent bib should be updated.
-3. Retrieving the selected parent holding.
-4. Applying MARC changes.
-5. Saving the changed records back to Alma.
-6. Updating the local MARC cache.
+1. Retrieving the supplied bib records from Alma.
+2. Treating the first bib as the parent.
+3. Retrieving the holdings associated with the parent bib.
+4. Raising an error if the parent has no holdings.
+5. Caching the retrieved bib records locally.
+6. Determining whether the cataloger needs to select a holding.
+7. Retrieving and caching the parent holding automatically when only one holding exists.
 
-MARC-specific manipulation belongs in `BoundWith::MarcEditor` rather than in the controller or updater.
+When the parent has multiple holdings, preparation stops before any Alma updates are made and the controller renders the holding-selection page.
+
+### BoundWith::Updater
+
+`BoundWith::Updater` performs the actual bound-with update after the bibs and parent holding have been resolved.
+
+It receives:
+
+```ruby
+BoundWith::Updater.new(
+  bibs: bibs,
+  holding: holding
+).call
+```
+
+It is responsible for:
+
+1. Removing previously generated bound-with MARC fields.
+2. Adding the appropriate `501`, `773`, `774`, and `014` fields.
+3. Updating the bib records in Alma.
+4. Updating the selected parent holding in Alma.
+5. Caching the successfully updated MARC records locally.
+
+Record retrieval and holding selection belong in `BoundWith::Preparation`, while MARC-specific manipulation belongs in `BoundWith::MarcEditor`.
 
 ### BoundWith::MarcEditor
 
@@ -167,6 +194,7 @@ These overrides provide application-specific behavior such as:
 * Converting Alma MARCXML into `MARC::Record` instances.
 * Updating bib and holding records.
 * Retrieving holdings.
+* Caching Alma bib and holding records locally.
 * Checking whether an Alma user is a cataloger.
 * Adapting `Alma::ResultSet` to behave correctly with Ruby's `Enumerable` methods.
 
@@ -213,6 +241,8 @@ mms_id    = parent bib MMS ID
 
 Only one cached copy of a given Alma record is retained. Alma is authoritative.
 
+Cached `MarcRecord` objects can also be converted back into Alma bib and holding objects when records need to be carried between steps of the bound-with workflow.
+
 ## Bound-with workflow
 
 The order of the supplied MMS IDs is significant.
@@ -237,15 +267,65 @@ The parent must already have the holding/item record that represents the physica
 
 Child bibs do not need their own inventory.
 
-### Holding selection
+### Step 1: Enter MMS IDs
 
-When MMS IDs are entered, the application can retrieve the holdings associated with the first bib and display them as selectable options.
+The cataloger enters two or more MMS IDs, one per line.
 
-If the parent bib has multiple holdings, the user may choose which holding should be updated.
+The first MMS ID identifies the parent bib. The remaining MMS IDs identify the child bibs.
 
-If no holding is explicitly selected, Boundwit Whiz uses the first holding returned by Alma, preserving the application's original behavior.
+The application validates the submitted MMS IDs before beginning the bound-with operation.
 
-The selected holding ID should always be validated against the holdings belonging to the parent bib before it is used.
+### Step 2: Prepare the records
+
+`BoundWith::Preparation` retrieves the bibs from Alma and retrieves the holdings belonging to the parent bib.
+
+If the parent has no holdings, the operation stops with an error.
+
+If the parent has exactly one holding, that holding is automatically selected and the application proceeds directly to the update.
+
+### Step 3: Select a holding when necessary
+
+If the parent bib has multiple holdings, the application displays a holding-selection page before making any bound-with changes.
+
+Each available holding is identified by:
+
+* Library
+* Location
+* Call number
+* Holding ID
+
+The cataloger selects the holding representing the physical bound volume and submits the form.
+
+The MMS IDs are carried forward to the second request so the same set of bib records can be used to finish the operation.
+
+### Step 4: Update Alma
+
+Once the holding has been resolved, `BoundWith::Updater` modifies the MARC records.
+
+For the parent bib:
+
+* Existing generated bound-with fields are removed.
+* A `501` note describing the bound-with set is added.
+* A `774` field is added for each child bib.
+
+For each child bib:
+
+* Existing generated bound-with fields are removed.
+* A `501` note describing the bound-with set is added.
+* A `773` field pointing to the parent is added.
+
+For the selected parent holding:
+
+* Existing generated bound-with fields are removed.
+* An `014` field is added for each child bib.
+
+The changed bibs and selected holding are then written back to Alma.
+
+### Step 5: Display the result
+
+After Alma has been updated successfully, the changed MARC records are cached locally and the user is redirected to the success page.
+
+The success page displays the bib records and associated holding from the local `MarcRecord` cache.
 
 ## SSO
 
@@ -278,6 +358,7 @@ Before running a bound-with operation:
 * Inspect generated MARC changes before testing against production data.
 * Do not assume cached records are authoritative.
 * Remember that Alma is always the source of truth.
+* Confirm that the selected holding represents the intended physical bound volume.
 * Be especially careful when modifying collection iteration or MARC field generation, since duplicate processing can produce duplicate fields in Alma.
 
 ## Useful commands
@@ -307,6 +388,8 @@ bin/rails routes
 
 ## Architecture
 
+A bound-with operation now has a preparation phase followed by an update phase:
+
 ```text
 Browser
   |
@@ -314,13 +397,31 @@ Browser
 BoundWithsController
   |
   v
-BoundWith::Updater
-  |
-  +--> BoundWith::MarcEditor
+BoundWith::Preparation
   |
   +--> Alma API
   |
   +--> MarcRecord cache
+  |
+  +--> one holding -------------------------+
+  |                                         |
+  +--> multiple holdings                    |
+          |                                 |
+          v                                 |
+     Holding Selection                      |
+          |                                 |
+          +---------------------------------+
+                                            |
+                                            v
+                                  BoundWith::Updater
+                                            |
+                              +-------------+-------------+
+                              |                           |
+                              v                           v
+                    BoundWith::MarcEditor              Alma API
+                                                          |
+                                                          v
+                                                  MarcRecord cache
 ```
 
 Authentication follows a separate path:
@@ -349,10 +450,11 @@ Keep controllers thin and put domain behavior in the appropriate service or mode
 When changing bound-with behavior:
 
 1. Add or update the MARC editor spec.
-2. Add regression coverage for the updater where appropriate.
-3. Verify that records are not processed more than once.
-4. Verify that the selected holding belongs to the parent bib.
-5. Test against designated Alma test records before using the change with production data.
+2. Add regression coverage for `BoundWith::Preparation` when changing record retrieval or holding-selection behavior.
+3. Add regression coverage for `BoundWith::Updater` when changing the Alma update workflow.
+4. Verify that records are not processed more than once.
+5. Test the zero-, one-, and multiple-holding cases when changing holding behavior.
+6. Test against designated Alma test records before using the change with production data.
 
 When changing an Alma override:
 
