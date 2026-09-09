@@ -1,53 +1,42 @@
 module BoundWith
   class MarcEditor
-
     def add_014_field(parent:, child:)
-      field = MARC::DataField.new(
+      new_field = MARC::DataField.new(
         "014", "1", " ",
         [ "a", id(child) ]
       )
 
-      parent.append(field)
+      append_field(new_field:, rec: parent)
     end
 
     def add_773_field(parent:, child:)
-      field = MARC::DataField.new(
+      new_field = MARC::DataField.new(
         "773", "1", " ",
         [ "t", title(parent) ],
         [ "w", id(parent) ]
       )
 
-      child.append(field)
+      append_field(new_field:, rec: child)
     end
 
     def add_774_field(parent:, child:)
-      field = MARC::DataField.new(
+      new_field = MARC::DataField.new(
         "774", "1", " ",
         [ "t", title(child) ],
         [ "w", id(child) ]
       )
 
-      parent.append(field)
+      append_field(new_field:, rec: parent)
     end
 
     def add_501_field(rec:, recs:)
-      content = bound_with_titles(rec, recs)
-
-      duplicate = rec.fields("501").any? do |field|
-        field["a"] == content &&
-          field["5"] == "PPT"
-      end
-
-      return rec if duplicate
-
-      field = MARC::DataField.new(
+      new_field = MARC::DataField.new(
         "501", " ", " ",
-        [ "a", content ],
+        [ "a", bound_with_titles(rec, recs) ],
         [ "5", "PPT" ]
       )
 
-      rec.append(field)
-      rec
+      append_field(new_field:, rec:)
     end
 
     def title(rec)
@@ -67,6 +56,17 @@ module BoundWith
         .join(" -- ")
 
       "Bound with: #{titles}."
+    end
+
+    private
+
+    def append_field(new_field:, rec:)
+      tag = new_field.tag
+      if rec.fields(tag).any? { |f| f == new_field }
+        rec
+      else
+        rec.append(new_field)
+      end
     end
   end
 end

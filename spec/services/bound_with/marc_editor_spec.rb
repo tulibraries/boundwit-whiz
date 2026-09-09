@@ -27,6 +27,23 @@ RSpec.describe BoundWith::MarcEditor do
     end
   end
 
+  describe "#add_014_field" do
+    it "adds a 014 pointing from the parent holding to the child" do
+      editor.add_014_field(parent:, child:)
+
+      field = parent["014"]
+
+      expect(field["a"]).to eq("child-id")
+    end
+
+    it "does not add a duplicate field if it already exists" do
+      editor.add_014_field(parent:, child:)
+      editor.add_014_field(parent:, child:)
+
+      expect(parent.fields("014").length).to eq(1)
+    end
+  end
+
   describe "#add_774_field" do
     it "adds a 774 for the child to the parent" do
       editor.add_774_field(parent:, child:)
@@ -38,6 +55,13 @@ RSpec.describe BoundWith::MarcEditor do
       expect(field.indicator1).to eq("1")
       expect(field.indicator2).to eq(" ")
     end
+
+    it "doess not add a duplicate field if it already exists" do
+      editor.add_774_field(parent:, child:)
+      editor.add_774_field(parent:, child:)
+
+      expect(parent.fields("774").length).to eq(1)
+    end
   end
 
   describe "#add_773_field" do
@@ -48,6 +72,13 @@ RSpec.describe BoundWith::MarcEditor do
 
       expect(field["t"]).to eq("Parent title")
       expect(field["w"]).to eq("parent-id")
+    end
+
+    it "doess not add a duplicate field if it already exists" do
+      editor.add_773_field(parent:, child:)
+      editor.add_773_field(parent:, child:)
+
+      expect(child.fields("773").length).to eq(1)
     end
   end
 
@@ -118,5 +149,4 @@ RSpec.describe BoundWith::MarcEditor do
       expect(editor.title(record)).to eq("Parent title")
     end
   end
-
 end

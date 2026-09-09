@@ -72,7 +72,6 @@ RSpec.describe BoundWith::Updater do
   end
 
   describe "#call" do
-
     it "adds the 501 field to the parent record" do
       expect(marc_editor)
         .to receive(:add_501_field)
