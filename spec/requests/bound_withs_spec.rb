@@ -571,5 +571,16 @@ RSpec.describe "BoundWiths", type: :request do
     expect(response.body)
       .not_to include("Holding #{other_holding.record_id}")
   end
+
+  it "starts the form with an empty MMS ID field after success" do
+    get bound_with_success_path(
+      mms_ids:,
+      holding_id: selected_holding.record_id
+    )
+
+    get root_path
+
+    expect(response.body).not_to include(mms_ids.first)
+  end
 end
 end

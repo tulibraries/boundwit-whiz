@@ -75,6 +75,9 @@ class BoundWithsController < ApplicationController
     end
 
     @records[0][:holdings] = [ holding ]
+
+    # Ditch the mms_id_values in the session once we don't need to replicate the form with user input.
+    flash[:mms_id_values] = ""
   end
 
   private
