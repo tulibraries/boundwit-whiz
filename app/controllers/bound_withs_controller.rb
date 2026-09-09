@@ -30,9 +30,7 @@ class BoundWithsController < ApplicationController
     validate(mms_ids:)
     holding_id = params.dig(:bound_with, :holding_id)
 
-    bibs = MarcRecord.where(record_id: mms_ids)
-      .in_order_of(:record_id, mms_ids)
-      .map(&:to_bib)
+    bibs = get_cached_bibs(mms_ids:)
 
     parent_bib = bibs.first
     holding = Alma::BibHolding.find(mms_id: parent_bib.id, holding_id: holding_id)
@@ -105,5 +103,19 @@ class BoundWithsController < ApplicationController
     end
 
     mms_ids
+  end
+
+  def get_cached_bibs(mms_ids:)
+    records = MarcRecord.where(record_id: mms_ids)
+      .in_order_of(:record_id, mms_ids)
+
+    if records.length != mms_ids.length
+      missing = mms_ids - records.map(&:record_id)
+
+      raise ArgumentError,
+        "Could not find cached MARC records for MMS IDs: #{missing.join(', ')}"
+    end
+
+    records.map(&:to_bib)
   end
 end

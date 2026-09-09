@@ -336,10 +336,12 @@ RSpec.describe "BoundWiths", type: :request do
       [
         instance_double(
           MarcRecord,
+          record_id: mms_ids[0],
           to_bib: bibs[0]
         ),
         instance_double(
           MarcRecord,
+          record_id: mms_ids[1],
           to_bib: bibs[1]
         )
       ]
@@ -473,6 +475,38 @@ RSpec.describe "BoundWiths", type: :request do
 
       expect(response.body)
         .to include("Something went wrong")
+    end
+
+    it "renders an error when a cached MARC record is missing" do
+      missing_mms_id = mms_ids.last
+
+      allow(relation)
+        .to receive(:in_order_of)
+        .with(:record_id, mms_ids)
+        .and_return([ marc_records.first ])
+
+      allow(relation)
+        .to receive(:pluck)
+        .with(:record_id)
+        .and_return([ mms_ids.first ])
+
+
+      expect(BoundWith::Updater)
+        .not_to receive(:new)
+
+      post create_with_selected_holding_path,
+        params: {
+          bound_with: {
+            mms_ids:,
+            holding_id: "2"
+          }
+        }
+
+      expect(response)
+        .to have_http_status(:unprocessable_content)
+
+      expect(response.body)
+        .to include(missing_mms_id)
     end
   end
 end
