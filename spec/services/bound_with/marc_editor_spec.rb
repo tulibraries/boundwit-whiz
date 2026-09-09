@@ -100,49 +100,23 @@ RSpec.describe BoundWith::MarcEditor do
     end
   end
 
-  describe "#purge_old_fields" do
-    it "removes 773 and 774 fields from a bib record" do
-      parent.append(MARC::DataField.new("773", " ", " "))
-      parent.append(MARC::DataField.new("774", " ", " "))
+  describe "#title" do
+    let(:record) do
+      MARC::Record.new.tap do |record|
+        record.append(MARC::ControlField.new("001", "parent-id"))
 
-      editor.purge_old_fields(rec: parent)
-
-      expect(parent["773"]).to be_nil
-      expect(parent["774"]).to be_nil
-    end
-
-    it "does not purge 501 fields" do
-      parent.append(
-        MARC::DataField.new(
-          "501", " ", " ",
-          [ "a", "Bound with: Something." ],
-          [ "5", "PPT" ]
-        )
-      )
-
-      editor.purge_old_fields(rec: parent)
-
-      expect(parent.fields("501").length).to eq(1)
-      expect(parent["501"]["a"]).to eq("Bound with: Something.")
-    end
-
-    describe "#title" do
-      let(:record) do
-        MARC::Record.new.tap do |record|
-          record.append(MARC::ControlField.new("001", "parent-id"))
-
-          record.append(
-            MARC::DataField.new(
-              "245", "1", "0",
-              [ "a", "Parent title /" ]
-            )
+        record.append(
+          MARC::DataField.new(
+            "245", "1", "0",
+            [ "a", "Parent title /" ]
           )
-        end
+        )
       end
+    end
 
-      it "removes trailing MARC punctuation" do
-        expect(editor.title(record)).to eq("Parent title")
-      end
+    it "removes trailing MARC punctuation" do
+      expect(editor.title(record)).to eq("Parent title")
     end
   end
+
 end

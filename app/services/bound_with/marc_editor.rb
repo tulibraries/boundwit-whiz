@@ -1,18 +1,5 @@
 module BoundWith
   class MarcEditor
-    def purge_old_fields(rec:)
-      type = rec.leader[6]
-      is_holding_record = %w[x y].include?(type)
-
-      if is_holding_record
-        rec.fields.delete_if { |field| field.tag == "014" }
-      else
-        rec.fields.delete_if { |field| field.tag == "773" }
-        rec.fields.delete_if { |field| field.tag == "774" }
-      end
-
-      rec
-    end
 
     def add_014_field(parent:, child:)
       field = MARC::DataField.new(
