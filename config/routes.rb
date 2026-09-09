@@ -17,6 +17,10 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "bound_withs#new"
 
+  post "bound_withs/create_with_selected_holding",
+    to: "bound_withs#create_with_selected_holding",
+    as: :create_with_selected_holding
+
   post "bound_withs",
     to: "bound_withs#create",
     as: :bound_withs
@@ -29,9 +33,6 @@ Rails.application.routes.draw do
   get "help", to: "pages#help", as: :help
 
   resources :marc_records, only: :show do
-    member do
-      post :refresh
-    end
   end
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

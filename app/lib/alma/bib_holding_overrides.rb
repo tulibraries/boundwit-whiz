@@ -5,8 +5,9 @@ module Alma
     def initialize(holding)
       super
       @response = @holding
-      path = @response.request.path.path
-      @mms_id = path[%r{/bibs/([^/]+)}, 1]
+      @mms_id =
+        holding["mms_id"] ||
+        response.request.path.path[%r{/bibs/([^/]+)}, 1]
     end
 
     # Avoids throwing error when using marc_record.title, and marc_record.id
@@ -46,6 +47,18 @@ module Alma
 
     def suppress_from_publishing
       @holding["suppress_from_publishing"]
+    end
+
+    def cache!
+      MarcRecord.find_or_initialize_by(
+        record_type: "holding",
+        record_id: id
+      ).update!(
+        mms_id: mms_id,
+        title: title,
+        marc_xml: record.to_xml_string,
+        suppress_from_publishing: suppress_from_publishing
+      )
     end
   end
 end

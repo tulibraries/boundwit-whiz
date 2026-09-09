@@ -87,7 +87,7 @@ RSpec.describe Alma::Bib do
   describe "#holding_ids" do
     it "returns the holding ids" do
       allow(bib).to receive(:holdings).and_return(
-        "holding" => [
+        [
           { "holding_id" => "123" },
           { "holding_id" => "456" }
         ]
@@ -303,6 +303,18 @@ RSpec.describe Alma::Bib do
       expect(calls).to eq(
         mms_ids.to_h { |id| [ id, 1 ] }
       )
+    end
+  end
+
+  describe "#cache!" do
+    it "caches the bib as a MarcRecord." do
+      bib = described_class.new(bib_response)
+      expect(bib.cache!)
+
+      record = MarcRecord.find_by(mms_id: bib.id)
+      expect(record.record_id).to eq(bib.id)
+      expect(record.title).to eq(bib.title)
+      expect(record.marc_xml).to eq(bib.record.to_xml_string)
     end
   end
 end

@@ -4,7 +4,7 @@
   </h2>
 
   <div class="marc-record">
-    <% @marc_record.record.fields.each do |field| %>
+    <% @marc_record.record.fields.sort_by(&:tag).each do |field| %>
       <div class="marc-row">
         <span class="marc-tag"><%= field.tag %></span>
 

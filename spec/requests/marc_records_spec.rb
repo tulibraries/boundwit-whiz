@@ -26,16 +26,4 @@ RSpec.describe "MarcRecords", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
-
-  describe "POST /marc_records/:id/refresh" do
-    it "redirects after refreshing" do
-      allow_any_instance_of(MarcRecord)
-        .to receive(:refresh_from_alma!)
-        .and_return(marc_record)
-
-      post refresh_marc_record_path(marc_record)
-
-      expect(response).to redirect_to(marc_record_path(marc_record))
-    end
-  end
 end

@@ -3,7 +3,7 @@ module Alma
     include MarcRecordExtras
 
     def holdings
-      @holdings_response = Alma::Net.get(
+      @holdings_response ||= Alma::Net.get(
         "#{bibs_base_path}/#{id}/holdings",
         headers:,
         timeout: Alma::Bib.timeout
@@ -11,11 +11,12 @@ module Alma
 
       raise StandardError, @holdings_response.body unless @holdings_response.code == 200
 
-      @holdings ||= JSON.parse(@holdings_response.body)
+      @parsed_holdings ||= JSON.parse(@holdings_response.body)
+      @parsed_holdings.fetch("holding", [])
     end
 
     def holding_ids
-      holdings["holding"].map { |holding| holding["holding_id"] }
+      holdings.map { |holding| holding["holding_id"] }
     end
 
     def update!
@@ -35,6 +36,17 @@ module Alma
 
     def title
       record["245"]["a"].sub(/[\s\/:;,.]+\z/, "")
+    end
+
+    def cache!
+        MarcRecord.find_or_initialize_by(
+          record_type: "bib",
+          record_id: id
+        ).update!(
+          mms_id: id,
+          title: title,
+          marc_xml: record.to_xml_string
+        )
     end
   end
 end
