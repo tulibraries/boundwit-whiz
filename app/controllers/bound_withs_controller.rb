@@ -17,7 +17,8 @@ class BoundWithsController < ApplicationController
       ).call
 
       redirect_to bound_with_success_path(
-        mms_ids: preparation.mms_ids
+        mms_ids: preparation.mms_ids,
+        holding_id: preparation.holding.id
       )
     end
   rescue StandardError => e
@@ -41,7 +42,8 @@ class BoundWithsController < ApplicationController
     ).call
 
     redirect_to bound_with_success_path(
-      mms_ids: mms_ids
+      mms_ids: mms_ids,
+      holding_id: holding.id
     )
   rescue StandardError => e
     flash.now[:alert] = e.message
@@ -50,16 +52,17 @@ class BoundWithsController < ApplicationController
 
   def success
     mms_ids = Array(params[:mms_ids]).uniq
+    holding_id = params[:holding_id]
 
     bibs = MarcRecord.where(
       record_type: "bib",
-      mms_id: mms_ids
+      record_id: mms_ids
     ).index_by(&:mms_id)
 
-    holdings = MarcRecord.where(
+    holding = MarcRecord.find_by(
       record_type: "holding",
-      mms_id: mms_ids
-    ).group_by(&:mms_id)
+      record_id: holding_id
+    )
 
     @records = mms_ids.filter_map do |mms_id|
       bib = bibs[mms_id]
@@ -67,9 +70,14 @@ class BoundWithsController < ApplicationController
 
       {
         bib:,
-        holdings: holdings.fetch(mms_id, [])
+        holdings: []
       }
     end
+
+    @records[0][:holdings] = [ holding ]
+
+    # Ditch the mms_id_values in the session once we don't need to replicate the form with user input.
+    flash[:mms_id_values] = ""
   end
 
   private

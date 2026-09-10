@@ -46,6 +46,8 @@ RSpec.describe "BoundWiths", type: :request do
       )
     end
 
+    let(:holding_id) { holding.id }
+
     it "calls the updater and redirects to success" do
       preparation = double(
         "preparation",
@@ -81,13 +83,15 @@ RSpec.describe "BoundWiths", type: :request do
       post bound_withs_path,
         params: {
           bound_with: {
-            mms_ids:
+            mms_ids:,
+            holding_id:
           }
         }
 
       expect(response).to redirect_to(
         bound_with_success_path(
-          mms_ids: parsed_mms_ids
+          mms_ids: parsed_mms_ids,
+          holding_id:
         )
       )
     end
@@ -404,7 +408,8 @@ RSpec.describe "BoundWiths", type: :request do
 
       expect(response).to redirect_to(
         bound_with_success_path(
-          mms_ids:
+          mms_ids:,
+          holding_id: "2"
         )
       )
     end
@@ -509,4 +514,73 @@ RSpec.describe "BoundWiths", type: :request do
         .to include(missing_mms_id)
     end
   end
+
+  describe "GET /bound_withs/success" do
+  let(:mms_ids) do
+    [
+      "991039535820903811",
+      "991039535820803811"
+    ]
+  end
+
+  let!(:parent_bib) do
+    MarcRecord.create!(
+      record_type: "bib",
+      record_id: mms_ids.first,
+      mms_id: mms_ids.first,
+      title: "Parent title"
+    )
+  end
+
+  let!(:child_bib) do
+    MarcRecord.create!(
+      record_type: "bib",
+      record_id: mms_ids.last,
+      mms_id: mms_ids.last,
+      title: "Child title"
+    )
+  end
+
+  let!(:selected_holding) do
+    MarcRecord.create!(
+      record_type: "holding",
+      record_id: "2",
+      mms_id: mms_ids.first
+    )
+  end
+
+  let!(:other_holding) do
+    MarcRecord.create!(
+      record_type: "holding",
+      record_id: "1",
+      mms_id: mms_ids.first
+    )
+  end
+
+  it "shows only the selected holding when multiple holdings are available" do
+    get bound_with_success_path(
+      mms_ids:,
+      holding_id: selected_holding.record_id
+    )
+
+    expect(response).to have_http_status(:ok)
+
+    expect(response.body)
+      .to include("Holding #{selected_holding.record_id}")
+
+    expect(response.body)
+      .not_to include("Holding #{other_holding.record_id}")
+  end
+
+  it "starts the form with an empty MMS ID field after success" do
+    get bound_with_success_path(
+      mms_ids:,
+      holding_id: selected_holding.record_id
+    )
+
+    get root_path
+
+    expect(response.body).not_to include(mms_ids.first)
+  end
+end
 end
