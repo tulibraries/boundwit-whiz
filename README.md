@@ -162,11 +162,10 @@ BoundWith::Updater.new(
 
 It is responsible for:
 
-1. Removing previously generated bound-with MARC fields.
-2. Adding the appropriate `501`, `773`, `774`, and `014` fields.
-3. Updating the bib records in Alma.
-4. Updating the selected parent holding in Alma.
-5. Caching the successfully updated MARC records locally.
+1. Adding the appropriate `501`, `773`, `774`, and `014` fields.
+1. Updating the bib records in Alma.
+1. Updating the selected parent holding in Alma.
+1. Caching the successfully updated MARC records locally.
 
 Record retrieval and holding selection belong in `BoundWith::Preparation`, while MARC-specific manipulation belongs in `BoundWith::MarcEditor`.
 
