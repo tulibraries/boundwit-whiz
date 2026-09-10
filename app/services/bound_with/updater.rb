@@ -7,15 +7,11 @@ module BoundWith
     end
 
     def call
-      recs = bibs.map do |bib|
-        marc.purge_old_fields(rec: bib.record)
-      end
+      recs = bibs.map(&:record)
 
       parent, *children = recs
 
-      holding_record = marc.purge_old_fields(
-        rec: parent_holding.record
-      )
+      holding_record = parent_holding.record
 
       marc.add_501_field(rec: parent, recs:)
 

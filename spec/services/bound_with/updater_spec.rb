@@ -48,18 +48,6 @@ RSpec.describe BoundWith::Updater do
     instance_double(MARC::Record)
   end
 
-  let(:purged_parent_record) do
-    instance_double(MARC::Record)
-  end
-
-  let(:purged_child_record) do
-    instance_double(MARC::Record)
-  end
-
-  let(:purged_holding_record) do
-    instance_double(MARC::Record)
-  end
-
   let(:marc_editor) do
     instance_double(BoundWith::MarcEditor)
   end
@@ -68,21 +56,6 @@ RSpec.describe BoundWith::Updater do
     allow(BoundWith::MarcEditor)
       .to receive(:new)
       .and_return(marc_editor)
-
-    allow(marc_editor)
-      .to receive(:purge_old_fields)
-      .with(rec: parent_record)
-      .and_return(purged_parent_record)
-
-    allow(marc_editor)
-      .to receive(:purge_old_fields)
-      .with(rec: child_record)
-      .and_return(purged_child_record)
-
-    allow(marc_editor)
-      .to receive(:purge_old_fields)
-      .with(rec: holding_record)
-      .and_return(purged_holding_record)
 
     allow(marc_editor).to receive(:add_501_field)
     allow(marc_editor).to receive(:add_773_field)
@@ -99,37 +72,14 @@ RSpec.describe BoundWith::Updater do
   end
 
   describe "#call" do
-    it "purges old fields from each bib record" do
-      expect(marc_editor)
-        .to receive(:purge_old_fields)
-        .with(rec: parent_record)
-        .and_return(purged_parent_record)
-
-      expect(marc_editor)
-        .to receive(:purge_old_fields)
-        .with(rec: child_record)
-        .and_return(purged_child_record)
-
-      updater.call
-    end
-
-    it "purges old fields from the parent holding" do
-      expect(marc_editor)
-        .to receive(:purge_old_fields)
-        .with(rec: holding_record)
-        .and_return(purged_holding_record)
-
-      updater.call
-    end
-
     it "adds the 501 field to the parent record" do
       expect(marc_editor)
         .to receive(:add_501_field)
         .with(
-          rec: purged_parent_record,
+          rec: parent_record,
           recs: [
-            purged_parent_record,
-            purged_child_record
+            parent_record,
+            child_record
           ]
         )
 
@@ -140,15 +90,15 @@ RSpec.describe BoundWith::Updater do
       expect(marc_editor)
         .to receive(:add_773_field)
         .with(
-          parent: purged_parent_record,
-          child: purged_child_record
+          parent: parent_record,
+          child: child_record
         )
 
       expect(marc_editor)
         .to receive(:add_774_field)
         .with(
-          parent: purged_parent_record,
-          child: purged_child_record
+          parent: parent_record,
+          child: child_record
         )
 
       updater.call
@@ -158,10 +108,10 @@ RSpec.describe BoundWith::Updater do
       expect(marc_editor)
         .to receive(:add_501_field)
         .with(
-          rec: purged_child_record,
+          rec: child_record,
           recs: [
-            purged_parent_record,
-            purged_child_record
+            parent_record,
+            child_record
           ]
         )
 
@@ -172,8 +122,8 @@ RSpec.describe BoundWith::Updater do
       expect(marc_editor)
         .to receive(:add_014_field)
         .with(
-          parent: purged_holding_record,
-          child: purged_child_record
+          parent: holding_record,
+          child: child_record
         )
 
       updater.call

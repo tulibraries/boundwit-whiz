@@ -27,6 +27,23 @@ RSpec.describe BoundWith::MarcEditor do
     end
   end
 
+  describe "#add_014_field" do
+    it "adds a 014 pointing from the parent holding to the child" do
+      editor.add_014_field(parent:, child:)
+
+      field = parent["014"]
+
+      expect(field["a"]).to eq("child-id")
+    end
+
+    it "does not add a duplicate field if it already exists" do
+      editor.add_014_field(parent:, child:)
+      editor.add_014_field(parent:, child:)
+
+      expect(parent.fields("014").length).to eq(1)
+    end
+  end
+
   describe "#add_774_field" do
     it "adds a 774 for the child to the parent" do
       editor.add_774_field(parent:, child:)
@@ -38,6 +55,13 @@ RSpec.describe BoundWith::MarcEditor do
       expect(field.indicator1).to eq("1")
       expect(field.indicator2).to eq(" ")
     end
+
+    it "doess not add a duplicate field if it already exists" do
+      editor.add_774_field(parent:, child:)
+      editor.add_774_field(parent:, child:)
+
+      expect(parent.fields("774").length).to eq(1)
+    end
   end
 
   describe "#add_773_field" do
@@ -48,6 +72,13 @@ RSpec.describe BoundWith::MarcEditor do
 
       expect(field["t"]).to eq("Parent title")
       expect(field["w"]).to eq("parent-id")
+    end
+
+    it "doess not add a duplicate field if it already exists" do
+      editor.add_773_field(parent:, child:)
+      editor.add_773_field(parent:, child:)
+
+      expect(child.fields("773").length).to eq(1)
     end
   end
 
@@ -100,49 +131,22 @@ RSpec.describe BoundWith::MarcEditor do
     end
   end
 
-  describe "#purge_old_fields" do
-    it "removes 773 and 774 fields from a bib record" do
-      parent.append(MARC::DataField.new("773", " ", " "))
-      parent.append(MARC::DataField.new("774", " ", " "))
+  describe "#title" do
+    let(:record) do
+      MARC::Record.new.tap do |record|
+        record.append(MARC::ControlField.new("001", "parent-id"))
 
-      editor.purge_old_fields(rec: parent)
-
-      expect(parent["773"]).to be_nil
-      expect(parent["774"]).to be_nil
-    end
-
-    it "does not purge 501 fields" do
-      parent.append(
-        MARC::DataField.new(
-          "501", " ", " ",
-          [ "a", "Bound with: Something." ],
-          [ "5", "PPT" ]
-        )
-      )
-
-      editor.purge_old_fields(rec: parent)
-
-      expect(parent.fields("501").length).to eq(1)
-      expect(parent["501"]["a"]).to eq("Bound with: Something.")
-    end
-
-    describe "#title" do
-      let(:record) do
-        MARC::Record.new.tap do |record|
-          record.append(MARC::ControlField.new("001", "parent-id"))
-
-          record.append(
-            MARC::DataField.new(
-              "245", "1", "0",
-              [ "a", "Parent title /" ]
-            )
+        record.append(
+          MARC::DataField.new(
+            "245", "1", "0",
+            [ "a", "Parent title /" ]
           )
-        end
+        )
       end
+    end
 
-      it "removes trailing MARC punctuation" do
-        expect(editor.title(record)).to eq("Parent title")
-      end
+    it "removes trailing MARC punctuation" do
+      expect(editor.title(record)).to eq("Parent title")
     end
   end
 end
