@@ -38,4 +38,21 @@ RSpec.describe "SAML authentication", type: :request do
 
     expect(response).to redirect_to(root_path)
   end
+
+  it "does not allow non cataloger to sign in" do
+    alma_user = instance_double(
+      Alma::User,
+      cataloger?: false
+    )
+
+    allow(Alma::User)
+      .to receive(:find)
+      .with("915619567")
+      .and_return(alma_user)
+
+    post "/users/auth/saml/callback"
+
+    expect(response).to redirect_to(new_session_path)
+    expect(flash[:alert]).to eq("You must have the Cataloger role in Alma to use this application.")
+  end
 end

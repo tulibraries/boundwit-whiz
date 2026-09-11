@@ -20,21 +20,36 @@
       <% if authenticated? %>
         <div class="d-flex align-items-center gap-4">
           <%= link_to "Create Boundwith",
-                      root_path,
-                      class: "text-white text-decoration-none" %>
+            root_path,
+            class: "text-white text-decoration-none" %>
 
           <%= link_to "Help",
-                      help_path,
-                      class: "text-white text-decoration-none" %>
+            help_path,
+            class: "text-white text-decoration-none" %>
 
           <%= button_to "Sign Out",
-                        session_path,
-                        method: :delete,
-                        class: "btn btn-link text-white text-decoration-none p-0" %>
+            session_path,
+            method: :delete,
+            class: "btn btn-link text-white text-decoration-none p-0" %>
         </div>
       <% end %>
     </nav>
 
-    <%= yield %>
+    <main class="container py-4">
+      <% if flash[:notice] %>
+        <div class="alert alert-success">
+          <%= flash[:notice] %>
+        </div>
+      <% end %>
+
+      <% if flash[:alert] %>
+        <div class="alert alert-danger">
+          <%= flash[:alert] %>
+        </div>
+      <% end %>
+
+      <%= yield %>
+    </main>
+
   </body>
 </html>

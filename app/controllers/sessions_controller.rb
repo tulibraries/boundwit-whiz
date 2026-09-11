@@ -24,6 +24,7 @@ class SessionsController < ApplicationController
     unless alma_user.cataloger?
       redirect_to new_session_path,
         alert: "You must have the Cataloger role in Alma to use this application."
+      return
     end
 
     start_new_session_for user

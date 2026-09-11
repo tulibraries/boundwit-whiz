@@ -9,18 +9,6 @@
         </div>
 
         <div class="card-body p-4">
-          <% if flash[:notice] %>
-            <div class="alert alert-success">
-              <%= flash[:notice] %>
-            </div>
-          <% end %>
-
-          <% if flash[:alert] %>
-            <div class="alert alert-danger">
-              <%= flash[:alert] %>
-            </div>
-          <% end %>
-
           <%= form_with scope: :bound_with,
                         url: bound_withs_path do |form| %>
 
