@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BoundWith
   class NoHoldingsError < StandardError; end
 
