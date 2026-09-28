@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.config.middleware.use OmniAuth::Builder do
   idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
   idp_metadata = idp_metadata_parser.parse_remote_to_hash(Rails.configuration.omniauth["saml_idp_metadata_url"])

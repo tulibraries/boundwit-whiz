@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BoundWithsController < ApplicationController
   def new
   end
@@ -83,47 +85,47 @@ class BoundWithsController < ApplicationController
   private
 
 
-  def mms_ids
-    raw_value = params.
-      require(:bound_with)
-      .fetch(:mms_ids)
+    def mms_ids
+      raw_value = params.
+        require(:bound_with)
+        .fetch(:mms_ids)
 
-    flash[:mms_id_values] = raw_value
+      flash[:mms_id_values] = raw_value
 
-    ids = raw_value
-      .split(/\s+/)
-      .map(&:strip)
-      .reject(&:blank?)
-      .uniq
+      ids = raw_value
+        .split(/\s+/)
+        .map(&:strip)
+        .reject(&:blank?)
+        .uniq
 
-    validate(mms_ids: ids)
-  end
-
-
-  def validate(mms_ids:)
-    raise ArgumentError, "Enter at least two MMS IDs." if mms_ids.size < 2
-
-    invalid_ids = mms_ids.reject { |id| id.match?(/\A9910\d{10}3811\z/) }
-
-    if invalid_ids.any?
-      raise ArgumentError,
-        "Invalid MMS ID: #{invalid_ids.join(', ')}"
+      validate(mms_ids: ids)
     end
 
-    mms_ids
-  end
 
-  def get_cached_bibs(mms_ids:)
-    records = MarcRecord.where(record_id: mms_ids)
-      .in_order_of(:record_id, mms_ids)
+    def validate(mms_ids:)
+      raise ArgumentError, "Enter at least two MMS IDs." if mms_ids.size < 2
 
-    if records.length != mms_ids.length
-      missing = mms_ids - records.map(&:record_id)
+      invalid_ids = mms_ids.reject { |id| id.match?(/\A9910\d{10}3811\z/) }
 
-      raise ArgumentError,
-        "Could not find cached MARC records for MMS IDs: #{missing.join(', ')}"
+      if invalid_ids.any?
+        raise ArgumentError,
+          "Invalid MMS ID: #{invalid_ids.join(', ')}"
+      end
+
+      mms_ids
     end
 
-    records.map(&:to_bib)
-  end
+    def get_cached_bibs(mms_ids:)
+      records = MarcRecord.where(record_id: mms_ids)
+        .in_order_of(:record_id, mms_ids)
+
+      if records.length != mms_ids.length
+        missing = mms_ids - records.map(&:record_id)
+
+        raise ArgumentError,
+          "Could not find cached MARC records for MMS IDs: #{missing.join(', ')}"
+      end
+
+      records.map(&:to_bib)
+    end
 end

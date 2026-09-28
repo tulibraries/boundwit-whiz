@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Alma
   module BibOverrides
     include MarcRecordExtras
@@ -39,14 +41,14 @@ module Alma
     end
 
     def cache!
-        MarcRecord.find_or_initialize_by(
-          record_type: "bib",
-          record_id: id
-        ).update!(
-          mms_id: id,
-          title: title,
-          marc_xml: record.to_xml_string
-        )
+      MarcRecord.find_or_initialize_by(
+        record_type: "bib",
+        record_id: id
+      ).update!(
+        mms_id: id,
+        title: title,
+        marc_xml: record.to_xml_string
+      )
     end
   end
 end

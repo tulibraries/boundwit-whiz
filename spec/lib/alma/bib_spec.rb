@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 
 RSpec.describe Alma::Bib do
@@ -131,7 +133,7 @@ RSpec.describe Alma::Bib do
         )
           .and_return(response)
 
-        expect(bib.update!).to eq("<bib>updated</bib>")
+      expect(bib.update!).to eq("<bib>updated</bib>")
     end
 
     it "raises when Alma returns an error" do

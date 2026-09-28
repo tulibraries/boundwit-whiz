@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateMarcRecords < ActiveRecord::Migration[8.1]
   def change
     create_table :marc_records do |t|

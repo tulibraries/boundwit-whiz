@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MarcRecord < ApplicationRecord
   validates :record_id, presence: true
   validates :record_type, presence: true

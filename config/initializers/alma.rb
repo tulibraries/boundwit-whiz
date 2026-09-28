@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Alma.configure do |config|
   config.apikey = Rails.application.credentials.dig(:alma, :api_key)
 end

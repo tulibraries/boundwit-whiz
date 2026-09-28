@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BoundWith
   class Updater
     def initialize(bibs:, holding:)
@@ -35,6 +37,6 @@ module BoundWith
 
     private
 
-    attr_reader :bibs, :parent_holding, :marc
+      attr_reader :bibs, :parent_holding, :marc
   end
 end

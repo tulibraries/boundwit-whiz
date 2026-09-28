@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BoundWith
   class MarcEditor
     def add_014_field(parent:, child:)
@@ -60,13 +62,13 @@ module BoundWith
 
     private
 
-    def append_field(new_field:, rec:)
-      tag = new_field.tag
-      if rec.fields(tag).any? { |f| f == new_field }
-        rec
-      else
-        rec.append(new_field)
+      def append_field(new_field:, rec:)
+        tag = new_field.tag
+        if rec.fields(tag).any? { |f| f == new_field }
+          rec
+        else
+          rec.append(new_field)
+        end
       end
-    end
   end
 end
