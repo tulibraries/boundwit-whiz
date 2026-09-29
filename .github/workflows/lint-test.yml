@@ -5,8 +5,6 @@ permissions:
 
 on:
   push:
-    branches-ignore:
-      - main
   workflow_dispatch: {}
 
 concurrency:
@@ -102,3 +100,10 @@ jobs:
           name: screenshots
           path: ${{ github.workspace }}/tmp/screenshots
           if-no-files-found: ignore
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./coverage/lcov/boundwit-whiz.lcov
+          fail-on-error: false
