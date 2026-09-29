@@ -29,7 +29,7 @@ jobs:
           APK_UPDATE_SUMMARY_PATH: /tmp/apk-update-summary.md
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.AUTO_PR_TOKEN }}
           add-paths: .docker/app/Dockerfile
