@@ -1,4 +1,5 @@
 # Boundwit Whiz
+[![Coverage Status](https://coveralls.io/repos/github/tulibraries/boundwit-whiz/badge.svg?branch=main)](https://coveralls.io/github/tulibraries/boundwit-whiz?branch=main)
 
 Boundwit Whiz is a Rails application for creating and maintaining bound-with relationships in Alma.
 
