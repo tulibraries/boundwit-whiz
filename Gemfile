@@ -4,6 +4,8 @@ source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.4"
+# HTTParty 0.24.2 still passes the removed `quirks_mode` option to JSON.parse.
+gem "json", ">= 2.7", "< 3.0"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
