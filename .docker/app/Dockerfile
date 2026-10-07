@@ -28,7 +28,7 @@ RUN apk add -U --no-cache \
     libxslt-dev=1.1.43-r3 \
     libffi-dev=3.5.2-r1 \
     postgresql17-dev=17.11-r0 \
-    tzdata=2026d-r0
+    tzdata=2026e-r0
 
 # Cache-friendly dependency layout
 COPY Gemfile Gemfile.lock ./
@@ -73,7 +73,7 @@ RUN apk add -U --no-cache \
     libxslt=1.1.43-r3 \
     postgresql17-client=17.11-r0 \
     shared-mime-info=2.4-r7 \
-    tzdata=2026d-r0
+    tzdata=2026e-r0
 
 # Bring over pre-compiled vendor files and optimized gems from the builder stage
 COPY --from=builder /usr/local/bundle /usr/local/bundle
