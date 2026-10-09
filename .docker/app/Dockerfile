@@ -91,6 +91,7 @@ USER 65534:65534
 # Entrypoint prepares the database.
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
-# Start server via Thruster by default, this can be overwritten at runtime
+# Start Puma directly; Thruster's embedded Go binary currently carries
+# vulnerabilities with no fixed RubyGems release available.
 EXPOSE 80
-CMD ["./bin/thrust", "./bin/rails", "server"]
+CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "80"]
