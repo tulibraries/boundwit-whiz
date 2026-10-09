@@ -86,4 +86,4 @@ gem "pry", "~> 0.16.0"
 
 gem "omniauth-saml", "~> 2.2"
 
-gem "pg", "~> 1.6"
+gem "pg", "~> 1.7"
