@@ -79,7 +79,7 @@ gem "alma", "~> 0.6.2"
 
 gem "marc", "~> 1.4"
 
-gem "pry", "~> 0.16.0"
+gem "pry", "~> 0.16.1"
 
 gem "omniauth-saml", "~> 2.2"
 
