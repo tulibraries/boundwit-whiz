@@ -93,14 +93,6 @@ jobs:
       - name: Run RSpec tests
         run: bundle exec rspec --format progress
 
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
-
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
         with:
