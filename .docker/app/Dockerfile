@@ -25,7 +25,7 @@ RUN apk add -U --no-cache \
     git=2.54.0-r0 \
     yaml=0.2.5-r2 \
     yaml-dev=0.2.5-r2 \
-    libxslt-dev=1.1.43-r3 \
+    libxslt-dev=1.1.43-r4 \
     libffi-dev=3.5.2-r1 \
     postgresql17-dev=17.11-r0 \
     tzdata=2026f-r0
@@ -70,7 +70,7 @@ RUN apk add -U --no-cache \
     bash=5.3.9-r1 \
     jemalloc=5.3.0-r6 \
     libc6-compat=1.1.0-r4 \
-    libxslt=1.1.43-r3 \
+    libxslt=1.1.43-r4 \
     postgresql17-client=17.11-r0 \
     shared-mime-info=2.4-r7 \
     tzdata=2026f-r0
