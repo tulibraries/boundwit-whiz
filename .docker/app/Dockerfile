@@ -26,7 +26,7 @@ RUN apk add -U --no-cache \
     yaml=0.2.5-r2 \
     yaml-dev=0.2.5-r2 \
     libxslt-dev=1.1.43-r4 \
-    libffi-dev=3.5.2-r1 \
+    libffi-dev=3.8.1-r0 \
     postgresql17-dev=17.12-r0 \
     tzdata=2026f-r0
 
